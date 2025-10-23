@@ -1,4 +1,5 @@
-# ns8-tig
+# ns8-tig WARNING: WORK IN PROGRESS - DO NOT USE
+
 NS8 module based on https://github.com/InfluxCommunity/TIG-Stack-using-InfluxDB-3
 
 Delivers a modern Telegraf - Influxdb3 - grafana setup.

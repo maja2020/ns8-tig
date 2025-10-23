@@ -1,0 +1,32 @@
+#
+# Copyright (C) 2022 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+[Unit]
+Description=Podman influxdb-ui-app.service
+BindsTo=tig.service
+After=tig.service
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+EnvironmentFile=%S/state/environment
+Restart=always
+TimeoutStopSec=70
+ExecStartPre=/bin/rm -f %t/influxdb-ui-app.pid %t/influxdb-ui-app.ctr-id
+ExecStart=/usr/bin/podman run --conmon-pidfile %t/influxdb-ui-app.pid \
+    --cidfile %t/influxdb-ui-app.ctr-id --cgroups=no-conmon \
+    --pod-id-file %t/tig.pod-id --replace -d --name influxdb-ui-app \
+    --security-opt seccomp=unconfined \
+    --env-file=%S/state/influxdb-ui.env \
+    ${INFLUXDB-UI_IMAGE} \
+    --node-id=${INFLUXDB_NODE_ID} --object-store=file --data-dir=/var/lib/influxdb3
+ExecStop=/usr/bin/podman stop --ignore --cidfile %t/influxdb-ui-app.ctr-id -t 10
+ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/influxdb-ui-app.ctr-id
+ExecReload=/usr/bin/podman kill -s HUPinfluxdb-ui-app
+SyslogIdentifier=%u
+PIDFile=%t/influxdb-ui-app.pid
+Type=forking
+
+[Install]
+WantedBy=default.target

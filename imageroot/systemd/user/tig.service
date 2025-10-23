@@ -8,26 +8,26 @@
 # Most parts of this file come from podman-generate-systemd.
 #
 [Unit]
-Description=tig server
+Description=Podman tig.service
+Requires=telegraf-app.service influxdb-app.service grafana-app.service influxdb-ui-app
+Before=telegraf-app.service influxdb-app.service grafana-app.service influxdb-ui-app
 
 [Service]
 Environment=PODMAN_SYSTEMD_UNIT=%n
-EnvironmentFile=%S/state/environment
-WorkingDirectory=%S/state
+EnvironmentFile=-%S/state/environment
 Restart=always
-ExecStartPre=/bin/rm -f %t/tig.pid %t/tig.ctr-id
-ExecStartPre=-runagent discover-smarthost
-ExecStart=/usr/bin/podman run \
-    --detach \
-    --conmon-pidfile=%t/tig.pid \
-    --cidfile=%t/tig.ctr-id \
-    --cgroups=no-conmon \
-    --replace --name=%N \
-    --publish=127.0.0.1:${TCP_PORT}:8080 \
-    --env-file=smarthost.env \
-    ${ECHO_SERVER_IMAGE}
-ExecStop=/usr/bin/podman stop --ignore --cidfile %t/tig.ctr-id -t 10
-ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/tig.ctr-id
+TimeoutStopSec=70
+ExecStartPre=/bin/rm -f %t/tig.pid %t/tig.pod-id
+ExecStartPre=/usr/bin/podman pod create \
+    --infra-conmon-pidfile %t/tig.pid \
+    --pod-id-file %t/tig.pod-id -n tig \
+    --port 127.0.0.1:${TCP_PORT_GRAFANA}:3000 \
+    --port 127.0.0.1:${TCP_PORT_INFLUXDB}:8181 \
+    --port 127.0.0.1:${TCP_PORT_INFLUXDB-UI}:8888 \
+    --replace
+ExecStart=/usr/bin/podman pod start --pod-id-file %t/tig.pod-id
+ExecStop=/usr/bin/podman pod stop --ignore --pod-id-file %t/tig.pod-id -t 10
+ExecStopPost=/usr/bin/podman pod rm --ignore -f --pod-id-file %t/tig.pod-id
 PIDFile=%t/tig.pid
 Type=forking
 

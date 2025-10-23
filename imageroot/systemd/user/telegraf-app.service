@@ -1,0 +1,32 @@
+#
+# Copyright (C) 2022 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+[Unit]
+Description=Podman  telegraf-app.service
+BindsTo=tig.service
+After=tig.service
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+EnvironmentFile=%S/state/environment
+WorkingDirectory=%S/state
+Restart=always
+TimeoutStopSec=70
+ExecStartPre=/bin/rm -f %t/telegraf-app.pid %t/telegraf-app.ctr-id
+ExecStart=/usr/bin/podman run --conmon-pidfile %t/telegraf-app.pid \
+	--cidfile %t/telegraf-app.ctr-id --cgroups=no-conmon --pod-id-file %t/grafana.pod-id \
+	--replace -d --name  telegraf-app \
+	--env-file=telegraf.env \
+	--volume=%S/state/telegraf.conf:/etc/telegraf/telegraf.conf:z \
+	${TELEGRAF_IMAGE}
+ExecStop=/usr/bin/podman stop --ignore --cidfile %t/telegraf-app.ctr-id -t 10
+ExecReload=/usr/bin/podman kill -s HUP telegraf-app
+SyslogIdentifier=%u
+ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/telegraf-app.ctr-id
+PIDFile=%t/telegraf-app.pid
+Type=forking
+
+[Install]
+WantedBy=default.target
