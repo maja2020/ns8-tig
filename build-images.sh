@@ -39,7 +39,7 @@ buildah config --entrypoint=/ \
     --label="org.nethserver.authorizations=traefik@node:routeadm" \
     --label="org.nethserver.tcp-ports-demand=3" \
     --label="org.nethserver.rootfull=0" \
-    --label="org.nethserver.images=docker.io/influxdb:3-core docker.io/telegraf:1.37.0-alpine docker.io/grafana/grafana:12.4.0" \
+    --label="org.nethserver.images=docker.io/influxdb:3.8-core docker.io/telegraf:1.37-alpine docker.io/grafana/grafana:12.4.0-20733476222" \
     "${container}"
 # Commit the image
 buildah commit "${container}" "${repobase}/${reponame}"
