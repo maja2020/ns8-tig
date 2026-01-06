@@ -19,7 +19,7 @@ ExecStart=/usr/bin/podman run --conmon-pidfile %t/grafana-app.pid \
 	--cidfile %t/grafana-app.ctr-id --cgroups=no-conmon --pod-id-file %t/grafana.pod-id \
 	--replace -d --name grafana-app \
 	--env-file=grafana.env \
-	--volume=grafana_data:/var/lib/grafana:z \
+	--volume=grafana-data:/var/lib/grafana:z \
     --volume=%S/state/local.yml:/etc/grafana/provisioning/datasources/local.yml:z \
     --volume=%S/etc/dashboards/:/etc/grafana/dashboards:z \
 	${GRAFANA_IMAGE}

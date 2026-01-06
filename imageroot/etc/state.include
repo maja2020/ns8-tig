@@ -1,0 +1,3 @@
+state/config.json
+volumes/grafana-data
+volumes/influxdb-data

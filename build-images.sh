@@ -21,7 +21,7 @@ container=$(buildah from scratch)
 # Reuse existing nodebuilder-tig container, to speed up builds
 if ! buildah containers --format "{{.ContainerName}}" | grep -q nodebuilder-tig; then
     echo "Pulling NodeJS runtime..."
-    buildah from --name nodebuilder-tig -v "${PWD}:/usr/src:Z" docker.io/library/node:22.16.0-slim
+    buildah from --name nodebuilder-tig -v "${PWD}:/usr/src:Z" docker.io/library/node:24.11.1-alpine
 fi
 
 echo "Build static UI files with node..."
@@ -39,7 +39,7 @@ buildah config --entrypoint=/ \
     --label="org.nethserver.authorizations=traefik@node:routeadm" \
     --label="org.nethserver.tcp-ports-demand=3 \
     --label="org.nethserver.rootfull=0" \
-    --label="org.nethserver.images=docker.io/influxdb:3.3.0-core docker.io/telegraf:1.35.3-alpine docker.io/grafana/grafana:12.2.0-16711121739" \
+    --label="org.nethserver.images=docker.io/influxdb:3-core docker.io/telegraf:1.37.0-alpine docker.io/grafana/grafana:12.4.0" \
     "${container}"
 # Commit the image
 buildah commit "${container}" "${repobase}/${reponame}"
