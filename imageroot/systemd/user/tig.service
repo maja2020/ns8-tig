@@ -9,8 +9,8 @@
 #
 [Unit]
 Description=Podman tig.service
-Requires=telegraf-app.service influxdb-app.service grafana-app.service influxdb-ui-app
-Before=telegraf-app.service influxdb-app.service grafana-app.service influxdb-ui-app
+Requires=telegraf-app.service influxdb-app.service grafana-app.service influxdb-ui-app.service
+Before=telegraf-app.service influxdb-app.service grafana-app.service influxdb-ui-app.service
 
 [Service]
 Environment=PODMAN_SYSTEMD_UNIT=%n
